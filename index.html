@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solar Cleaning System Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --dark-green: #253D2C;
+            --main-green: #2E6F40;
+            --light-green: #68BA7F;
+            --pale-green: #CFFFDC;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--dark-green) 0%, #1a2c20 100%);
+            color: var(--pale-green);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .header {
+            background: rgba(207, 255, 220, 0.1);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(207, 255, 220, 0.2);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+            border-radius: 20px;
+            padding: 15px 30px;
+            margin-bottom: 25px;
+            text-align: center;
+            width: 100%;
+            max-width: 1100px;
+        }
+
+        .header h1 {
+            font-size: 1.8rem;
+            letter-spacing: 2px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            max-width: 1100px;
+            gap: 25px;
+        }
+
+        /* Video နှင့် Prototype ကို ဘေးတိုက်ပြရန် Grid */
+        .visuals-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .glass-panel {
+            background: rgba(46, 111, 64, 0.15);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(104, 186, 127, 0.3);
+            box-shadow: 0 10px 40px 0 rgba(0, 0, 0, 0.4), inset 0 0 20px rgba(207, 255, 220, 0.05);
+            border-radius: 25px;
+            padding: 15px;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .glass-panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, var(--light-green), transparent);
+        }
+
+        .glass-panel img {
+            width: 100%;
+            height: 100%;
+            max-height: 400px;
+            object-fit: cover;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+            background-color: #000;
+        }
+
+        .badge {
+            position: absolute;
+            top: 25px;
+            left: 25px;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            backdrop-filter: blur(4px);
+            z-index: 2;
+        }
+
+        .badge.live {
+            background: rgba(229, 57, 53, 0.8);
+        }
+
+        .badge.proto {
+            background: rgba(46, 111, 64, 0.8);
+            border: 1px solid var(--light-green);
+        }
+
+        .pulse {
+            width: 8px;
+            height: 8px;
+            background-color: white;
+            border-radius: 50%;
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            50% {
+                opacity: 0;
+            }
+        }
+
+        /* Controls Section */
+        .controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .switch-container {
+            grid-column: span 2;
+            background: rgba(37, 61, 44, 0.5);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(104, 186, 127, 0.2);
+            border-radius: 20px;
+            padding: 15px 30px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .switch-label {
+            font-size: 1.2rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 70px;
+            height: 34px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.4);
+            transition: .4s;
+            border-radius: 34px;
+            border: 1px solid rgba(207, 255, 220, 0.2);
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 3px;
+            background-color: var(--pale-green);
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked+.slider {
+            background-color: var(--light-green);
+            border-color: var(--main-green);
+        }
+
+        input:checked+.slider:before {
+            transform: translateX(36px);
+            background-color: white;
+        }
+
+        .btn {
+            background: rgba(104, 186, 127, 0.2);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(207, 255, 220, 0.3);
+            border-top: 1px solid rgba(207, 255, 220, 0.5);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+            color: var(--pale-green);
+            padding: 20px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            text-transform: uppercase;
+        }
+
+        .btn i {
+            font-size: 2rem;
+            margin-bottom: 5px;
+        }
+
+        .btn:hover {
+            transform: translateY(-5px);
+            background: rgba(104, 186, 127, 0.3);
+            box-shadow: 0 12px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn:active {
+            transform: translateY(2px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-clean {
+            background: linear-gradient(135deg, rgba(46, 111, 64, 0.6), rgba(104, 186, 127, 0.4));
+        }
+
+        .btn-clean i {
+            color: #81C784;
+        }
+
+        .btn-stop {
+            background: linear-gradient(135deg, rgba(183, 28, 28, 0.6), rgba(229, 57, 53, 0.4));
+            border: 1px solid rgba(255, 138, 128, 0.3);
+        }
+
+        .btn-stop i {
+            color: #FF8A80;
+        }
+
+        #toast {
+            visibility: hidden;
+            min-width: 250px;
+            background-color: rgba(46, 111, 64, 0.9);
+            color: #fff;
+            text-align: center;
+            border-radius: 10px;
+            padding: 16px;
+            position: fixed;
+            z-index: 10;
+            bottom: 30px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            opacity: 0;
+            transition: visibility 0.5s, opacity 0.5s linear;
+        }
+
+        #toast.show {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 800px) {
+            .visuals-grid {
+                grid-template-columns: 1fr;
+            }
+
+            /* ဖုန်းတွင် အပေါ်အောက် ပြောင်းရန် */
+            .header h1 {
+                font-size: 1.4rem;
+            }
+
+            .btn {
+                padding: 15px;
+                font-size: 1rem;
+            }
+
+            .switch-container {
+                flex-direction: column;
+                gap: 15px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="header">
+        <h1><i class="fa-solid fa-solar-panel"></i> Solar Cleaner Control</h1>
+    </div>
+
+    <div class="container">
+
+        <!-- Video နှင့် Prototype ကို ယှဉ်ပြမည့် နေရာ -->
+        <div class="visuals-grid">
+
+            <!-- 1. Live Camera Stream -->
+            <div class="glass-panel">
+                <div class="badge live">
+                    <div class="pulse"></div> LIVE CAM
+                </div>
+                <!-- Browser မှ တိုက်ရိုက်ခေါ်သကဲ့သို့ Raw ထည့်ထားသဖြင့် အမြန်ဆုံးဖြစ်မည် -->
+                <img id="stream-window" src="http://192.168.73.25/stream" alt="Camera Stream...">
+            </div>
+
+            <!-- 2. Prototype Image -->
+            <div class="glass-panel">
+                <div class="badge proto"><i class="fa-solid fa-layer-group"></i> PROTOTYPE</div>
+                <!-- "prototype.png" နေရာတွင် သင့်ပုံနာမည်ကို ပြောင်းထည့်ပါ။ Folder အတူတူထဲတွင် ထားပါ။ -->
+                <img src="Prototpye.jpg" alt="Prototype Model">
+            </div>
+
+        </div>
+
+        <div class="switch-container">
+            <div class="switch-label">
+                <i class="fa-solid fa-robot"></i> Operation Mode
+                <span id="mode-text"
+                    style="color: var(--light-green); font-size: 0.9rem; margin-left:10px;">(Manual)</span>
+            </div>
+            <label class="switch">
+                <input type="checkbox" id="modeSwitch" onchange="toggleMode()">
+                <span class="slider"></span>
+            </label>
+        </div>
+
+        <div class="controls">
+            <button class="btn btn-clean" onclick="sendBlynkCommand('V1', '1', 'Cleaning Started!')">
+                <i class="fa-solid fa-broom"></i>
+                Start Clean
+            </button>
+
+            <button class="btn btn-stop" onclick="sendBlynkCommand('V4', '1', 'Emergency Stop Activated!')">
+                <i class="fa-solid fa-hand"></i>
+                Emerg. Stop
+            </button>
+        </div>
+
+    </div>
+
+    <div id="toast">Message Sent</div>
+
+    <script>
+        const AUTH_TOKEN = "mwrP7jgEEOBJCFde4vrclviL1wyrP0wN";
+
+        function toggleMode() {
+            const isChecked = document.getElementById('modeSwitch').checked;
+            const modeText = document.getElementById('mode-text');
+            const val = isChecked ? '1' : '0';
+
+            if (isChecked) {
+                modeText.innerText = "(Auto)";
+                modeText.style.color = "#CFFFDC";
+            } else {
+                modeText.innerText = "(Manual)";
+                modeText.style.color = "var(--light-green)";
+            }
+            sendBlynkCommand('V2', val, `Mode changed to ${isChecked ? 'Auto' : 'Manual'}`);
+        }
+
+        function sendBlynkCommand(pin, value, message) {
+            const url = `https://blynk.cloud/external/api/update?token=${AUTH_TOKEN}&${pin}=${value}`;
+            fetch(url)
+                .then(response => { if (response.ok) showToast(message); })
+                .catch(error => { console.error('Error:', error); showToast("Connection Error!", true); });
+        }
+
+        function showToast(msg, isError = false) {
+            const toast = document.getElementById("toast");
+            toast.innerText = msg;
+            toast.style.backgroundColor = isError ? "rgba(183, 28, 28, 0.9)" : "rgba(46, 111, 64, 0.9)";
+            toast.className = "show";
+            setTimeout(function () { toast.className = toast.className.replace("show", ""); }, 3000);
+        }
+    </script>
+</body>
+
+</html>
